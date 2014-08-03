@@ -1,0 +1,12 @@
+implement pcd file -> pcl instance
+implement pcl instance to pcd instance
+
+
+implement headless(no viewer) pcl-pcd procedure. write pcd files to
+/data/pcl/pcd
+
+implement pcl->range image
+    pcl from ok_pcl consitstsof xyzrgb points
+    range image consists of xyz points 
+
+

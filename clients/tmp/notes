@@ -1,0 +1,12 @@
+depth image socket server
+loop over vertices, add to octree
+search position against octree in render loop
+
+extract some keypoints, into something mapping the depth image
+
+live point cloud to range image<feature detect>
+
+try ros on 12.04
+(how to live change +1 chroots)
+    try openni calibration
+    
