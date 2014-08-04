@@ -55,9 +55,55 @@ class EchoHanlder(asyncore.dispatcher):
 		self.close()
 
 class EchoServer(asyncore.dispatcher):
-
-	def __init__(self, host, port):
-		asyncore.dispatcher.__init__(self)
-		self.create_socket(socket.AF_INET, sokcet.SOCK_STREAM)
-		self.bind((host, port))
-		self.listen(5)
+ 
+    allow_reuse_address = False
+    request_queue_size = 5
+    address_family = socket.AF_INET
+    socket_type = socket.SOCK_STREAM
+ 
+    def __init__(self, address, handlerClass=EchoHandler):
+        self.address            = address
+        self.handlerClass       = handlerClass
+ 
+        asyncore.dispatcher.__init__(self)
+        self.create_socket(self.address_family,
+                               self.socket_type)
+ 
+        if self.allow_reuse_address:
+            self.set_reuse_addr()
+ 
+        self.server_bind()
+        self.server_activate()
+ 
+    def server_bind(self):
+        self.bind(self.address)
+        log.debug("Bind: Address=%s:%s" % (self.address[0], self.address[1]))
+ 
+    def server_activate(self):
+        self.listen(self.request_queue_size)
+        log.debug("Listen: Backlog=%d" % self.request_queue_size)
+ 
+    def fileno(self):
+        return self.socket.fileno()
+ 
+    def serve_forever(self):
+        asyncore.loop()
+ 
+    # TODO: Implement a proper request handler using handle_request()
+ 
+    def handle_accept(self):
+        (conn_sock, client_address) = self.accept()
+        if self.verify_request(conn_sock, client_address):
+            self.process_request(conn_sock, client_address)
+ 
+    def verify_request(self, conn_sock, client_address):
+        return True
+ 
+    def process_request(self, conn_sock, client_address):
+        log.info("conn_made: client_address=%s:%s" % \
+                     (client_address[0],
+                      client_address[1]))
+        self.handlerClass(conn_sock, client_address, self)
+ 
+    def handle_close(self):
+        self.close()
